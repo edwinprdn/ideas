@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeMail;
 
 class AuthController extends Controller
 {
@@ -23,13 +25,15 @@ class AuthController extends Controller
             ]
         );
 
-        User::create(
+        $user = User::create(
             [
             'name' => $validation['name'],
             'email' => $validation['email'],
             'password' => Hash::make($validation['password'])
             ]
         );
+
+        Mail::to($user->email)->send(new WelcomeMail($user));
 
         return redirect()->route('dashboard')->with('success', 'Your account has been created.');
     }
